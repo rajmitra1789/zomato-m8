@@ -5,11 +5,23 @@ truth for facts. `Recommendation` carries only what the LLM is allowed to contri
 ordering and prose. Facts are re-joined from `Restaurant` by id.
 """
 
-from typing import Literal
+import math
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
 BudgetBand = Literal["low", "medium", "high"]
+
+
+def _nan_to_none(value: Any) -> Any:
+    """Parquet hands back NaN for missing numerics, and NaN satisfies `float | None`.
+
+    Left alone it would defeat the whole unrated contract: `is None` checks silently fail
+    and the UI renders the literal text "nan".
+    """
+    if isinstance(value, float) and math.isnan(value):
+        return None
+    return value
 
 
 class Restaurant(BaseModel):
@@ -28,7 +40,9 @@ class Restaurant(BaseModel):
     # None for unrated, "NEW", and "-" — never coerced to 0.0, which would read as a bad score.
     rating: float | None = None
     votes: int = 0
-    weighted_rating: float = 0.0
+    # None when unrated: "unknown" is not the same claim as "scored zero". Phase 4 sorts
+    # these last explicitly rather than letting a 0.0 do it implicitly.
+    weighted_rating: float | None = None
 
     cost_for_two: int | None = None
     budget_band: BudgetBand | None = None
@@ -41,6 +55,11 @@ class Restaurant(BaseModel):
     dish_liked: list[str] = Field(default_factory=list)
     review_snippets: list[str] = Field(default_factory=list)
     url: str | None = None
+
+    @field_validator("rating", "weighted_rating", "cost_for_two", mode="before")
+    @classmethod
+    def _coerce_nan(cls, value: Any) -> Any:
+        return _nan_to_none(value)
 
 
 class UserPreferences(BaseModel):

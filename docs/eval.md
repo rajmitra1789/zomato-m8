@@ -28,12 +28,12 @@ Assert after every ingestion run. These are the measured values from architectur
 
 | Invariant | Expected | Failure meaning |
 | --- | --- | --- |
-| Deduplicated row count | 12,453 (±1%) | If ~51,717: dedup ran on raw `url` and did nothing |
+| Deduplicated row count | 12,453 (±1%), 12,426 after dropping unusable rows | If ~51,717: dedup ran on raw `url` and did nothing |
 | Cost p33 / p66 | ₹300 / ₹500 | Comma-stripping in `parse_cost` is broken |
 | Global mean rating `C` | 3.625 (±0.01) | `"NEW"`, `'-'`, or nulls leaking in as numbers |
 | Parsed rating range | within [1.8, 4.9] | A `5.0` or `0.0` means a parse fault |
 | Distinct locations / city areas / meal contexts | 93 / 30 / 7 | Facets built after a lossy dedup |
-| Unrated share | 25.6% (±1pp) | Rating parser too strict or too lenient |
+| Unrated share | 24.1% (±1pp) | Rating parser too strict or too lenient. Note: 25.6% is the figure for keep-first dedup; the pipeline keeps the highest-vote sibling, which recovers ratings from 238 groups where siblings disagree |
 | Rows with `cost` but no `budget_band` | 0 | Banding missed the null-cost path |
 | `id` uniqueness | 100% | Hash collision or row-index used as ID |
 | Artifact size | single-digit MB | `reviews_list` was not reduced |

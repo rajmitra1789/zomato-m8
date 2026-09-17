@@ -40,7 +40,7 @@ These numbers were measured from the raw dataset during architecture work. They 
 | Quantity | Expected |
 | --- | --- |
 | Raw rows | 51,717 |
-| Rows after deduplication | **12,453** |
+| Rows after deduplication | **12,453** (12,426 after dropping 27 unusable) |
 | Distinct `location` values | 93 |
 | Distinct `city_area` values | 30 |
 | Distinct meal contexts | 7 |
@@ -48,7 +48,7 @@ These numbers were measured from the raw dataset during architecture work. They 
 | Cost range | ₹40 – ₹6,000 |
 | Global mean rating (`C`) | **3.625** |
 | Parsed rating range | 1.8 – 4.9 |
-| Unrated share after dedup | 25.6% |
+| Unrated share after dedup | 25.6% keep-first / **24.1% keep-highest-votes** |
 | `"NEW"` rated rows | 2,208 |
 | Median votes | 24 |
 
@@ -111,16 +111,16 @@ This phase is deliberately test-first. The functions are small, pure, and the ex
 
 **Tasks:**
 
-- [ ] `download.py`: fetch the `train` split into `data/raw/`, cached so reruns are offline. Expect a ~150 MB download.
-- [ ] In `build_artifact.py`, follow architecture §6.1 in order. Drop `menu_item` and `phone` and reduce `reviews_list` to snippets **before** any other processing — this is what keeps peak memory from exceeding half a gigabyte.
-- [ ] Apply the Phase 1 parsers column by column.
-- [ ] Deduplicate on the canonical URL path, keeping the highest-`votes` row per group, and aggregate the dropped siblings' `listed_in(type)` and `listed_in(city)` values into `meal_contexts` and `city_areas`.
-- [ ] **Assert the deduplicated row count is within a tolerance of 12,453 and fail loudly otherwise.** Deduplicating on the raw `url` would leave all 51,717 rows and produce a UI that silently repeats restaurants; an assertion is the only cheap defense against that.
-- [ ] Compute `id` (stable short hash of the canonical URL), the cost percentiles, `budget_band`, `C`, and `weighted_rating`.
-- [ ] Derive the `is_family_friendly` and `is_quick_service` heuristic flags from `rest_types` and `meal_contexts`.
-- [ ] Drop unusable rows: missing name, or missing both rating and cost.
-- [ ] Write Snappy-compressed Parquet, plus `facets.json` containing sorted locations, city areas, cuisines, meal contexts, and the calibrated budget thresholds.
-- [ ] Log a summary: rows in, rows out, computed p33/p66, computed `C`, and null counts per column.
+- [x] `download.py`: fetch the `train` split into `data/raw/`, cached so reruns are offline. Expect a ~150 MB download.
+- [x] In `build_artifact.py`, follow architecture §6.1 in order. Drop `menu_item` and `phone` and reduce `reviews_list` to snippets **before** any other processing — this is what keeps peak memory from exceeding half a gigabyte.
+- [x] Apply the Phase 1 parsers column by column.
+- [x] Deduplicate on the canonical URL path, keeping the highest-`votes` row per group, and aggregate the dropped siblings' `listed_in(type)` and `listed_in(city)` values into `meal_contexts` and `city_areas`.
+- [x] **Assert the deduplicated row count is within a tolerance of 12,453 and fail loudly otherwise.** Deduplicating on the raw `url` would leave all 51,717 rows and produce a UI that silently repeats restaurants; an assertion is the only cheap defense against that.
+- [x] Compute `id` (stable short hash of the canonical URL), the cost percentiles, `budget_band`, `C`, and `weighted_rating`.
+- [x] Derive the `is_family_friendly` and `is_quick_service` heuristic flags from `rest_types` and `meal_contexts`.
+- [x] Drop unusable rows: missing name, or missing both rating and cost.
+- [x] Write Snappy-compressed Parquet, plus `facets.json` containing sorted locations, city areas, cuisines, meal contexts, and the calibrated budget thresholds.
+- [x] Log a summary: rows in, rows out, computed p33/p66, computed `C`, and null counts per column.
 
 **Exit criterion:** `python -m zomato_reco.ingest.build_artifact` completes and its summary matches the Validation Targets table — 12,453 rows, p33 ₹300, p66 ₹500, `C` 3.625. The artifact should be a few megabytes, not hundreds; if it is large, the `reviews_list` reduction did not happen.
 
@@ -269,7 +269,7 @@ If time is short, Phases 0 through 6 deliver everything the problem statement as
 | --- | --- | --- | --- |
 | 0 | Scaffold, config, models | Package imports, settings load | ☑ |
 | 1 | Tested field parsers | `pytest tests/test_clean.py` | ☑ |
-| 2 | `restaurants.parquet` + facets | 12,453 rows; ₹300/₹500; C=3.625 | ☐ |
+| 2 | `restaurants.parquet` + facets | 12,453 rows; ₹300/₹500; C=3.625 | ☑ |
 | 3 | Repository + hard filters | Real query non-empty, absurd query empty | ☐ |
 | 4 | Scoring + relaxation | **Milestone A:** sensible results, no LLM | ☐ |
 | 5 | LLM engine + validation gate | Explanations work; fallback works keyless | ☐ |

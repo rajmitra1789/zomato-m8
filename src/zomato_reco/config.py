@@ -46,10 +46,10 @@ class Settings(BaseSettings):
     result_count: int = 5
     relaxation_floor: int = 5
 
-    # Bayesian shrinkage constant for weighted_rating. Must stay > 0: restaurants with
-    # zero votes divide by (votes + min_votes_m). The median restaurant has only 24
-    # votes, so this value shrinks more than half the catalogue toward the global mean.
-    min_votes_m: int = 50
+    # Bayesian shrinkage constant for weighted_rating. Constrained > 0 because 3,186
+    # restaurants have zero votes and would divide by (votes + min_votes_m). The median
+    # restaurant has only 24 votes, so this shrinks over half the catalogue toward the mean.
+    min_votes_m: int = Field(default=50, gt=0)
 
     # Cap on results sharing one brand name. Cafe Coffee Day alone has 54 outlets.
     max_per_brand: int = 2
