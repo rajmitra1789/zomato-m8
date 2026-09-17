@@ -3,6 +3,9 @@
 # src/zomato_reco/data/ source package.
 /data/
 
+# Quota counters and any on-disk LLM cache. Regenerated at runtime; never commit.
+data/runtime/
+
 # Secrets
 .env
 
