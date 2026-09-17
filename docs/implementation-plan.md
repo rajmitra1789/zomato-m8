@@ -138,11 +138,11 @@ This phase is deliberately test-first. The functions are small, pure, and the ex
 
 **Tasks:**
 
-- [ ] `repository.py`: load the Parquet and `facets.json` once, cache in module state, and expose facet accessors for the UI plus the DataFrame for filtering. Fail with an actionable message ("run `python -m zomato_reco.ingest.build_artifact` first") when the artifact is absent.
-- [ ] Implement each filter from architecture §7.1 as a separate composable function: location, budget band, minimum rating, cuisine overlap, meal-context overlap.
-- [ ] Order the filter application cheapest-and-most-selective first.
-- [ ] Ensure unrated restaurants are excluded when `min_rating` is set, rather than silently comparing against `None`.
-- [ ] Tests on a small hand-built DataFrame: each filter in isolation, filters in combination, the empty-result case, and the unrated-exclusion rule.
+- [x] `repository.py`: load the Parquet and `facets.json` once, cache in module state, and expose facet accessors for the UI plus the DataFrame for filtering. Fail with an actionable message ("run `python -m zomato_reco.ingest.build_artifact` first") when the artifact is absent.
+- [x] Implement each filter from architecture §7.1 as a separate composable function: location, budget band, minimum rating, cuisine overlap, meal-context overlap.
+- [x] Order the filter application cheapest-and-most-selective first.
+- [x] Ensure unrated restaurants are excluded when `min_rating` is set, rather than silently comparing against `None`.
+- [x] Tests on a small hand-built DataFrame: each filter in isolation, filters in combination, the empty-result case, and the unrated-exclusion rule.
 
 **Exit criterion:** a scratch script filtering for a real neighborhood plus a real cuisine returns a plausible non-empty set, and an intentionally absurd query returns exactly zero rows without raising.
 
@@ -270,7 +270,7 @@ If time is short, Phases 0 through 6 deliver everything the problem statement as
 | 0 | Scaffold, config, models | Package imports, settings load | ☑ |
 | 1 | Tested field parsers | `pytest tests/test_clean.py` | ☑ |
 | 2 | `restaurants.parquet` + facets | 12,453 rows; ₹300/₹500; C=3.625 | ☑ |
-| 3 | Repository + hard filters | Real query non-empty, absurd query empty | ☐ |
+| 3 | Repository + hard filters | Real query non-empty, absurd query empty | ☑ |
 | 4 | Scoring + relaxation | **Milestone A:** sensible results, no LLM | ☐ |
 | 5 | LLM engine + validation gate | Explanations work; fallback works keyless | ☐ |
 | 6 | Streamlit UI | **Milestone B:** full search in browser | ☐ |

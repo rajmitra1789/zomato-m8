@@ -82,7 +82,7 @@ A related schema inconsistency: architecture §6.1 aggregates sibling rows into 
 | 3.1 | Artifact missing | **[ANTICIPATED]** first run | Actionable error naming the build command, not a `FileNotFoundError` traceback | P1 |
 | 3.2 | Location with a single restaurant | **[VERIFIED]** Jakkur, Kengeri, Peenya have exactly 1; Central Bangalore, Langford Town, Rajarajeshwari Nagar have 2 | Must not crash, and any extra constraint guarantees zero results | P1 |
 | 3.3 | Minimum rating silently deletes a quarter of the catalog | **[VERIFIED]** 25.6% (3,182) are unrated, excluded as soon as a minimum is set | Correct, but the UI should say so. Moving the slider off zero is a bigger cliff than users expect | P1 |
-| 3.4 | High rating thresholds are nearly infeasible | **[VERIFIED]** only 2,101 restaurants at ≥4.0, **191 at ≥4.5**, 52 at ≥4.7, 22 at ≥4.8 | Cap the slider near 4.5, or warn. A 4.5 minimum plus a location plus a cuisine is almost always empty — relaxation becomes the normal path, not the exception | P1 |
+| 3.4 | High rating thresholds are nearly infeasible | **[VERIFIED]** only 2,142 restaurants at ≥4.0, **200 at ≥4.5**, 49 at ≥4.7, 25 at ≥4.8 | Cap the slider near 4.5, or warn. A 4.5 minimum plus a location plus a cuisine is almost always empty — relaxation becomes the normal path, not the exception | P1 |
 | 3.5 | Rating comparison against `None` | **[VERIFIED]** 3,182 null ratings | Never compare `None >= 4.0`; filter nulls out first | P0 |
 | 3.6 | Rare cuisine selected | **[VERIFIED]** 107 distinct cuisines; Russian, Jewish, Vegan, Raw Meats, Malwani and Sindhi each have exactly **1** restaurant | Return the single match rather than erroring | P1 |
 | 3.7 | Cuisine absent from a location | **[VERIFIED]** Italian exists in only 66 of 93 locations, so 27 locations have none at all | Trigger relaxation, and explain which constraint was empty | P1 |
@@ -157,7 +157,7 @@ All **[ANTICIPATED]**: these depend on model behavior, not data.
 | 6.9 | Search feels frozen during the LLM call | **[ANTICIPATED]** 2–5 seconds | Spinner plus disabled submit | P1 |
 | 6.10 | Rapid repeated submissions | **[ANTICIPATED]** | Debounce or disable while in flight, so one user cannot fire many paid calls | P1 |
 | 6.11 | Budget radio implies even thirds | **[VERIFIED]** bands are 41/31/27% | Label with real ranges: "low — up to ₹300 for two" | P2 |
-| 6.12 | Rating slider allows an infeasible minimum | **[VERIFIED]** only 22 restaurants at ≥4.8 | Cap at 4.5 or show live match counts | P1 |
+| 6.12 | Rating slider allows an infeasible minimum | **[VERIFIED]** only 25 restaurants at ≥4.8 | Cap at 4.5 or show live match counts | P1 |
 | 6.13 | Slider minimum below the data floor | **[VERIFIED]** lowest real rating is 1.8 | Starting at 0 is harmless but meaningless; start at 1.8 or 3.0 | P2 |
 
 ---
