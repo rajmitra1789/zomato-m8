@@ -87,6 +87,21 @@ class Relaxation(BaseModel):
     detail: str
 
 
+class ScoreBreakdown(BaseModel):
+    """Deterministic score components for the 'why this rank' expander.
+
+    The LLM may reorder the cards, but these numbers stay the vote-weighted score so the
+    ranking remains auditable.
+    """
+
+    weighted_rating: float | None = None
+    preference_boost: float = 0.0
+    score: float | None = None
+    votes: int = 0
+    strict_match: bool = False
+    unrated: bool = False
+
+
 class Recommendation(BaseModel):
     """The LLM's contribution for one restaurant: rank and prose only, no facts."""
 
@@ -94,6 +109,7 @@ class Recommendation(BaseModel):
     rank: int
     explanation: str
     match_highlights: list[str] = Field(default_factory=list)
+    score_breakdown: ScoreBreakdown | None = None
 
 
 class RecommendationResult(BaseModel):

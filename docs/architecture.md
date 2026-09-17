@@ -335,7 +335,8 @@ Step 6 is what makes the "dataset is the source of truth" principle structural r
 | --- | --- |
 | Missing/invalid API key | Detected at startup; app runs in deterministic mode with a visible banner |
 | Timeout or network error | One retry with backoff, then deterministic fallback |
-| Rate limit (429) | Respect `Retry-After` once, then fall back |
+| Rate limit (429) | Do not retry — a retry burns the 30 RPM / 8k TPM budget. Local quota should prevent most 429s; if Groq still returns one, fall back immediately |
+| Local quota would be exceeded | Skip the LLM call and return Phase 4 templates. Caps: 30 RPM, 1k RPD, 8k TPM, 200k TPD (enforced at 90%) |
 | Malformed JSON | One repair retry, then fall back |
 | Hallucinated IDs | Silently dropped, backfilled from score order |
 | Empty candidate set | Skip the LLM entirely; show relaxation suggestions |
@@ -344,7 +345,7 @@ Fallback explanations are generated from templates over real fields ("4.4 rating
 
 ### 8.5 Caching
 
-Two layers, both keyed by content hash: the Parquet load is cached for the process lifetime (`st.cache_data`), and LLM responses are cached on `hash(preferences + candidate_ids + model + result_count)`. Identical repeat searches — common when a user toggles the UI back and forth — cost nothing and return instantly.
+Two layers, both keyed by content hash: the Parquet load is cached for the process lifetime (`st.cache_data`), and LLM responses are cached on `hash(model + prompt)`. Identical repeat searches — common when a user toggles the UI back and forth — cost nothing, return instantly, and do not count against Groq's 8k tokens/minute cap.
 
 ---
 

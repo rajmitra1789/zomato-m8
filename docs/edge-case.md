@@ -131,14 +131,15 @@ All **[ANTICIPATED]**: these depend on model behavior, not data.
 | 5.12 | Injection via dataset content (review snippets) | Same defense. Note that snippets are attacker-influenced text from the internet flowing into the prompt | P1 |
 | 5.13 | Missing or invalid API key | Detected at startup, deterministic mode with a visible banner. Never a traceback | P0 |
 | 5.14 | Timeout or connection failure | One retry with backoff, then fallback. Cap total wait so the UI cannot hang | P0 |
-| 5.15 | Rate limit (429) | Honor `Retry-After` once, then fallback | P1 |
+| 5.15 | Rate limit (429) | Do not retry (a retry spends quota). Local tracker should prevent this; if it still happens, deterministic fallback | P1 |
 | 5.16 | Response truncated by `max_tokens` mid-JSON | Treated as malformed; raise the limit enough that 5 explanations fit comfortably | P1 |
 | 5.17 | Model refuses or returns an empty string | Fallback path | P1 |
 | 5.18 | Model echoes JSON inside a markdown fence | Strip fences before parsing — common enough to handle rather than fail on | P1 |
 | 5.19 | Prompt exceeds the context window | Candidate count is capped at 20 with lean serialization, but assert the assembled size instead of assuming it | P1 |
 | 5.20 | Non-English or emoji in explanations | Render safely; Streamlit handles Unicode, but truncation must be character-safe | P2 |
 | 5.21 | Explanation contradicts the relaxation notice | The model sees only candidates, not what was relaxed. Pass the relaxations into the prompt so it does not claim a perfect fit on a widened search | P1 |
-| 5.22 | Same query returns a different order on a rerun | Expected at temperature 0.3. The response cache makes repeats stable; lower the temperature if it bothers you | P2 |
+| 5.22 | Same query returns a different order on a rerun | Expected at temperature 0.3. The response cache makes repeats stable and free | P2 |
+| 5.23 | Burst of searches would exceed Groq free-tier caps (30 RPM, 1k RPD, **8k TPM**, 200k TPD) | Client-side quota refuses the call *before* it is sent. 8k TPM is the binding cap (~2 live calls/minute). Fallback to templates; cache hits do not count | P0 |
 
 ---
 

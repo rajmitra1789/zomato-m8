@@ -54,6 +54,19 @@ class Settings(BaseSettings):
     # gpt-oss hidden reasoning. "low" keeps the JSON reply from being truncated.
     reasoning_effort: str = "low"
 
+    # Groq free-tier caps for openai/gpt-oss-120b. The client refuses the call
+    # (deterministic fallback) rather than waiting or getting a 429.
+    llm_rpm: int = Field(default=30, gt=0)
+    llm_rpd: int = Field(default=1_000, gt=0)
+    llm_tpm: int = Field(default=8_000, gt=0)
+    llm_tpd: int = Field(default=200_000, gt=0)
+    # Pre-flight output-token guess. max_tokens is the API ceiling; using it here
+    # would reserve 2k+ per call and allow only one request per minute.
+    llm_output_token_estimate: int = Field(default=1_500, gt=0)
+    # Stay under the published caps so a slightly-short estimate cannot 429 us.
+    llm_quota_margin: float = Field(default=0.9, gt=0.0, le=1.0)
+    llm_cache: bool = True
+
     # --- Recommendation pipeline ---
     candidate_count: int = 20
     result_count: int = 5
@@ -82,6 +95,11 @@ class Settings(BaseSettings):
     @property
     def facets_path(self) -> Path:
         return self.processed_data_dir / self.facets_name
+
+    @property
+    def llm_quota_path(self) -> Path:
+        """Daily request/token counters. Under /data so it stays gitignored."""
+        return PROJECT_ROOT / "data" / "runtime" / "llm_quota.json"
 
     @property
     def llm_enabled(self) -> bool:

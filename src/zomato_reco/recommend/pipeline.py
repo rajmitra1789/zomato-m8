@@ -18,6 +18,7 @@ from zomato_reco.models import (
     RecommendationResult,
     Relaxation,
     Restaurant,
+    ScoreBreakdown,
     UserPreferences,
 )
 from zomato_reco.recommend.relaxation import relax
@@ -137,8 +138,13 @@ def recommend(
 
     try:
         return _llm_rank(selection, prefs, client)
-    except Exception:
-        logger.exception("LLM path failed; falling back to deterministic ranking")
+    except Exception as exc:
+        from zomato_reco.llm.quota import QuotaExceeded
+
+        if isinstance(exc, QuotaExceeded):
+            logger.warning("Skipping LLM (%s); using deterministic ranking", exc)
+        else:
+            logger.exception("LLM path failed; falling back to deterministic ranking")
         return _deterministic(selection, prefs)
 
 
@@ -224,13 +230,41 @@ def _assemble(
 ) -> RecommendationResult:
     by_id = {row["id"]: row for _, row in selection.df.iterrows()}
     restaurants = [to_restaurant(by_id[rec.id]) for rec in recs if rec.id in by_id]
-    recs = [rec for rec in recs if rec.id in by_id]
+    recs = [
+        rec.model_copy(update={"score_breakdown": _breakdown(by_id[rec.id])})
+        for rec in recs
+        if rec.id in by_id
+    ]
     return RecommendationResult(
         restaurants=restaurants,
         recommendations=recs,
         summary=summary,
         relaxations=selection.relaxations,
         llm_used=llm_used,
+    )
+
+
+def _breakdown(row: pd.Series) -> ScoreBreakdown:
+    """Pull the scoring scratch columns off a candidate row for the UI expander."""
+    has_rating = (
+        bool(row["_has_rating"]) if "_has_rating" in row.index else pd.notna(row.get("rating"))
+    )
+    boost = float(row["_boost"]) if "_boost" in row.index else 0.0
+    score = None
+    if has_rating and "score" in row.index and pd.notna(row["score"]):
+        score = round(float(row["score"]), 3)
+    weighted = row.get("weighted_rating")
+    if has_rating and weighted is not None and pd.notna(weighted):
+        weighted_f: float | None = round(float(weighted), 3)
+    else:
+        weighted_f = None
+    return ScoreBreakdown(
+        weighted_rating=weighted_f,
+        preference_boost=round(boost, 3),
+        score=score,
+        votes=int(row.get("votes") or 0),
+        strict_match=bool(row["_strict"]) if "_strict" in row.index else False,
+        unrated=not has_rating,
     )
 
 

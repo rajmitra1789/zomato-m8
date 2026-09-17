@@ -195,7 +195,7 @@ This phase is deliberately test-first. The functions are small, pure, and the ex
 
 **Exit criterion:** with a real `GROQ_API_KEY`, recommendations come back with explanations that reference actual preferences. With the key removed, the identical call still returns 5 results via templates. The test suite passes without any API key present.
 
-**Note on cost:** Groq's gpt-oss-120b is cheap enough that development iteration is cents. Still add the response cache in Phase 7 before any repeated demoing.
+**Note on cost and quota:** Groq's gpt-oss-120b free tier is **8k tokens/minute** and 200k/day — a few uncached ranking calls will hit TPM long before the 30 RPM or 1k RPD caps. The client refuses the call locally (and serves a cache hit for identical prompts) rather than 429-ing. Still add the Phase 7 response cache persistence before any heavy demoing.
 
 *Rough effort: 2 sessions.*
 
@@ -209,13 +209,13 @@ This phase is deliberately test-first. The functions are small, pure, and the ex
 
 **Tasks:**
 
-- [ ] Sidebar form driven entirely by `facets.json`: location dropdown, budget radio **labelled with the real rupee ranges** ("medium — ₹300–₹500 for two"), cuisine multi-select, rating slider, free-text extras box, result-count selector.
-- [ ] Build `UserPreferences` from the form and call `pipeline.recommend()`. The UI must contain no filtering or ranking logic of its own.
-- [ ] Result cards: rank and name heading, cuisine tags, rating with vote count, cost for two, the explanation, convenience badges, and a Zomato link.
-- [ ] Relaxation notices above the results, phrased in plain language.
-- [ ] The "why this rank" expander per card showing deterministic score components, which keeps the ranking auditable.
-- [ ] Handle all four states from architecture §9: initial, loading, zero-results-after-relaxation, and degraded (template explanations) with a visible banner.
-- [ ] Apply the resolved scope decision to all user-facing copy — do not label a neighborhood dropdown "City".
+- [x] Sidebar form driven entirely by `facets.json`: location dropdown, budget radio **labelled with the real rupee ranges** ("medium — ₹300–₹500 for two"), cuisine multi-select, rating slider, free-text extras box, result-count selector.
+- [x] Build `UserPreferences` from the form and call `pipeline.recommend()`. The UI must contain no filtering or ranking logic of its own.
+- [x] Result cards: rank and name heading, cuisine tags, rating with vote count, cost for two, the explanation, convenience badges, and a Zomato link.
+- [x] Relaxation notices above the results, phrased in plain language.
+- [x] The "why this rank" expander per card showing deterministic score components, which keeps the ranking auditable.
+- [x] Handle all four states from architecture §9: initial, loading, zero-results-after-relaxation, and degraded (template explanations) with a visible banner.
+- [x] Apply the resolved scope decision to all user-facing copy — do not label a neighborhood dropdown "City".
 
 **Exit criterion — MILESTONE B:** `streamlit run app/streamlit_app.py`, then complete a full search through the UI and get useful cards. Deliberately over-constrain a query and confirm the relaxation notice explains what happened. This is the demoable state and satisfies every stage of the problem statement.
 
@@ -276,6 +276,6 @@ If time is short, Phases 0 through 6 deliver everything the problem statement as
 | 3 | Repository + hard filters | Real query non-empty, absurd query empty | ☑ |
 | 4 | Scoring + relaxation | **Milestone A:** sensible results, no LLM | ☑ |
 | 5 | LLM engine + validation gate | Explanations work; fallback works keyless | ☑ |
-| 6 | Streamlit UI | **Milestone B:** full search in browser | ☐ |
+| 6 | Streamlit UI | **Milestone B:** full search in browser | ☑ |
 | 7 | Caching, logging, e2e test | `pytest` green without a key | ☐ |
 | 8 | Extensions | As scoped | ☐ |
