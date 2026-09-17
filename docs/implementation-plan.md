@@ -88,14 +88,14 @@ This phase is deliberately test-first. The functions are small, pure, and the ex
 
 **Tasks:**
 
-- [ ] `parse_rating`: handle `"4.1/5"`, the whitespace variant `"4.1 /5"`, the literal `"NEW"` → `None`, **a bare `'-'` → `None`**, `None` → `None`, and any unexpected string → `None` rather than raising. The column has 65 distinct values; see `edge-case.md` §1.
-- [ ] `parse_cost`: handle `"800"`, the comma form `"1,200"` → `1200`, and `None` → `None`.
-- [ ] `parse_yes_no`: `"Yes"` → `True`, `"No"` → `False`, anything else → `False`.
-- [ ] `split_multi`: `"North Indian, Chinese"` → `["North Indian", "Chinese"]`, with trimming, empty-string removal, and `None` → `[]`.
-- [ ] `fix_encoding`: repair the mojibake sequences (`Ã` runs) seen in names and review text.
-- [ ] `canonical_url` / `dedup_key`: strip the `?context=` query string from a Zomato URL. **This is the highest-stakes function in the phase** — see Phase 2.
-- [ ] `extract_review_snippets`: safely pull at most 2 short snippets from the stringified list-of-tuples in `reviews_list`, truncate each, and never `eval` untrusted input carelessly (use `ast.literal_eval` inside a try/except).
-- [ ] Table-driven tests for all of the above, including the null and garbage cases.
+- [x] `parse_rating`: handle `"4.1/5"`, the whitespace variant `"4.1 /5"`, the literal `"NEW"` → `None`, **a bare `'-'` → `None`**, `None` → `None`, and any unexpected string → `None` rather than raising. The column has 65 distinct values; see `edge-case.md` §1.
+- [x] `parse_cost`: handle `"800"`, the comma form `"1,200"` → `1200`, and `None` → `None`.
+- [x] `parse_yes_no`: `"Yes"` → `True`, `"No"` → `False`, anything else → `False`.
+- [x] `split_multi`: `"North Indian, Chinese"` → `["North Indian", "Chinese"]`, with trimming, empty-string removal, and `None` → `[]`.
+- [x] `fix_encoding`: repair the mojibake sequences (`Ã` runs) seen in names and review text.
+- [x] `canonical_url` / `dedup_key`: strip the `?context=` query string from a Zomato URL. **This is the highest-stakes function in the phase** — see Phase 2.
+- [x] `extract_review_snippets`: safely pull at most 2 short snippets from the stringified list-of-tuples in `reviews_list`, truncate each, and never `eval` untrusted input carelessly (use `ast.literal_eval` inside a try/except).
+- [x] Table-driven tests for all of the above, including the null and garbage cases.
 
 **Exit criterion:** `pytest tests/test_clean.py` passes, with an explicit test asserting that two URLs differing only in their `?context=` parameter produce the same dedup key.
 
@@ -268,7 +268,7 @@ If time is short, Phases 0 through 6 deliver everything the problem statement as
 | Phase | Deliverable | Exit check | Done |
 | --- | --- | --- | --- |
 | 0 | Scaffold, config, models | Package imports, settings load | ☑ |
-| 1 | Tested field parsers | `pytest tests/test_clean.py` | ☐ |
+| 1 | Tested field parsers | `pytest tests/test_clean.py` | ☑ |
 | 2 | `restaurants.parquet` + facets | 12,453 rows; ₹300/₹500; C=3.625 | ☐ |
 | 3 | Repository + hard filters | Real query non-empty, absurd query empty | ☐ |
 | 4 | Scoring + relaxation | **Milestone A:** sensible results, no LLM | ☐ |
