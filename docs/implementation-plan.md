@@ -62,13 +62,13 @@ These numbers were measured from the raw dataset during architecture work. They 
 
 **Tasks:**
 
-- [ ] `git init` (the project is not yet a repo) and commit the two existing docs.
-- [ ] Create `pyproject.toml` with dependencies: `pandas`, `pyarrow`, `datasets`, `streamlit`, `pydantic>=2`, `pydantic-settings`, `openai`, and dev extras `pytest`, `ruff`.
-- [ ] Set up a virtual environment and install the package in editable mode.
-- [ ] Write `.gitignore` covering `data/`, `.env`, `__pycache__/`, `.venv/`. **Do this before the first data run**, so a 145 MB Parquet file never has the chance to land in git history.
-- [ ] Write `config.py` with a `pydantic-settings` class holding: artifact paths, `llm_model`, `temperature=0.3`, `candidate_count=20`, `result_count=5`, `min_votes_m=50`, `relaxation_floor=5`, and the soft-preference weights.
-- [ ] Write `.env.example` documenting `OPENAI_API_KEY` (and base URL if using an alternative provider). Never create a real `.env` with a key in it via a tool that logs.
-- [ ] Write `models.py` with the `Restaurant`, `UserPreferences`, and `Recommendation` Pydantic models from architecture §6.3 and §8.2.
+- [x] `git init` (the project is not yet a repo) and commit the two existing docs.
+- [x] Create `pyproject.toml` with dependencies: `pandas`, `pyarrow`, `datasets`, `streamlit`, `pydantic>=2`, `pydantic-settings`, `openai`, and dev extras `pytest`, `ruff`.
+- [x] Set up a virtual environment and install the package in editable mode.
+- [x] Write `.gitignore` covering `data/`, `.env`, `__pycache__/`, `.venv/`. **Do this before the first data run**, so a 145 MB Parquet file never has the chance to land in git history.
+- [x] Write `config.py` with a `pydantic-settings` class holding: artifact paths, `llm_model`, `temperature=0.3`, `candidate_count=20`, `result_count=5`, `min_votes_m=50`, `relaxation_floor=5`, and the soft-preference weights.
+- [x] Write `.env.example` documenting `OPENAI_API_KEY` (and base URL if using an alternative provider). Never create a real `.env` with a key in it via a tool that logs.
+- [x] Write `models.py` with the `Restaurant`, `UserPreferences`, and `Recommendation` Pydantic models from architecture §6.3 and §8.2.
 
 **Exit criterion:** `python -c "import zomato_reco; from zomato_reco.config import settings; print(settings.candidate_count)"` prints `20`, and `git status` shows no data or env files as untracked-but-ignorable.
 
@@ -267,7 +267,7 @@ If time is short, Phases 0 through 6 deliver everything the problem statement as
 
 | Phase | Deliverable | Exit check | Done |
 | --- | --- | --- | --- |
-| 0 | Scaffold, config, models | Package imports, settings load | ☐ |
+| 0 | Scaffold, config, models | Package imports, settings load | ☑ |
 | 1 | Tested field parsers | `pytest tests/test_clean.py` | ☐ |
 | 2 | `restaurants.parquet` + facets | 12,453 rows; ₹300/₹500; C=3.625 | ☐ |
 | 3 | Repository + hard filters | Real query non-empty, absurd query empty | ☐ |
