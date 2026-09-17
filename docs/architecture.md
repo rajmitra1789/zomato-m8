@@ -82,7 +82,7 @@ This is worth a test assertion: after ingestion, the row count should be ~12.4k.
 | Cleaned artifact | Parquet | Columnar, compressed, preserves dtypes, loads in well under a second |
 | UI | Streamlit | Fastest path from Python functions to a usable interface; no separate frontend build |
 | Validation / contracts | Pydantic v2 | Typed boundaries for user input and LLM output, with parsing built in |
-| LLM access | Provider-agnostic interface over an OpenAI-compatible client | Swap models without touching the pipeline; supports JSON-mode responses |
+| LLM access | Groq (`openai/gpt-oss-120b`) via an OpenAI-compatible client | Fast JSON-mode ranking; swapping hosts is a base-URL change, not a rewrite |
 | Config | `pydantic-settings` + `.env` | Keeps the API key out of code and out of git |
 | Tests | pytest | Filters and parsers are pure functions and highly testable |
 
@@ -150,7 +150,7 @@ Zomato_proj/
 │   │   └── pipeline.py           # Orchestrates filter -> score -> LLM -> merge
 │   ├── llm/
 │   │   ├── base.py               # LLMClient protocol
-│   │   ├── openai_client.py      # Concrete implementation
+│   │   ├── openai_client.py      # OpenAI SDK pointed at Groq (or any compatible host)
 │   │   ├── prompts.py            # System + user prompt templates
 │   │   └── parser.py             # Parse, validate, and repair LLM JSON
 │   └── ui/
@@ -295,7 +295,7 @@ class LLMClient(Protocol):
     def complete_json(self, system: str, user: str, schema: dict) -> dict: ...
 ```
 
-`pipeline.py` depends only on this protocol, so tests inject a stub and the concrete provider stays swappable. Default configuration: temperature `0.3` (near-deterministic prose while keeping explanations readable), JSON response mode, and a bounded `max_tokens`.
+`pipeline.py` depends only on this protocol, so tests inject a stub and the concrete provider stays swappable. Default configuration: Groq at `https://api.groq.com/openai/v1`, model `openai/gpt-oss-120b`, temperature `0.3` (near-deterministic prose while keeping explanations readable), JSON response mode, `reasoning_effort=low` so gpt-oss hidden reasoning does not starve the JSON reply, and a bounded `max_tokens`. The API key is `GROQ_API_KEY`.
 
 ### 8.2 Prompt design
 
@@ -360,7 +360,7 @@ Two layers, both keyed by content hash: the Parquet load is cached for the proce
 
 ## 10. Cross-Cutting Concerns
 
-**Configuration.** All tunables — artifact paths, model name, temperature, candidate count, `m` constant, soft-preference weights, relaxation floor — live in `config.py` via `pydantic-settings`, overridable by `.env`. The API key is read from the environment only; `.env` and `data/` are gitignored, and `.env.example` documents the required variables.
+**Configuration.** All tunables — artifact paths, Groq model name, temperature, candidate count, `m` constant, soft-preference weights, relaxation floor — live in `config.py` via `pydantic-settings`, overridable by `.env`. The API key is read from the environment only (`GROQ_API_KEY`, with `OPENAI_API_KEY` accepted as an alias); `.env` and `data/` are gitignored, and `.env.example` documents the required variables.
 
 **Testing.** Field parsers get table-driven tests over the real quirks found in §2.2 (`"4.1 /5"`, `"1,200"`, `"NEW"`, nulls). Deduplication gets an explicit test that the same restaurant with two different `?context=` URLs collapses to one row, plus a post-ingestion assertion on the ~12.4k row count — the failure mode here is silent, so it needs a guard. Filters are tested on a small hand-built DataFrame including the over-constrained-relaxation path. Scoring asserts the low-vote-doesn't-win property. The parser is tested against hallucinated IDs, duplicate IDs, malformed JSON, and short responses. The pipeline gets one end-to-end test with a stub LLM client, so CI needs no API key.
 

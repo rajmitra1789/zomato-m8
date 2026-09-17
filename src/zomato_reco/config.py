@@ -26,20 +26,33 @@ class Settings(BaseSettings):
     hf_dataset_id: str = "ManikaSaini/zomato-restaurant-recommendation"
     hf_split: str = "train"
 
-    # --- LLM ---
-    # Aliased so the conventional unprefixed names work despite env_prefix.
+    # --- LLM (Groq via the OpenAI-compatible SDK) ---
+    # GROQ_API_KEY is the primary name. OPENAI_API_KEY is accepted so existing
+    # OpenAI-compatible tooling still works when pointed at Groq's base URL.
     openai_api_key: str | None = Field(
         default=None,
-        validation_alias=AliasChoices("OPENAI_API_KEY", "ZOMATO_OPENAI_API_KEY"),
+        validation_alias=AliasChoices(
+            "GROQ_API_KEY",
+            "OPENAI_API_KEY",
+            "ZOMATO_GROQ_API_KEY",
+            "ZOMATO_OPENAI_API_KEY",
+        ),
     )
     openai_base_url: str | None = Field(
-        default=None,
-        validation_alias=AliasChoices("OPENAI_BASE_URL", "ZOMATO_OPENAI_BASE_URL"),
+        default="https://api.groq.com/openai/v1",
+        validation_alias=AliasChoices(
+            "OPENAI_BASE_URL",
+            "GROQ_BASE_URL",
+            "ZOMATO_OPENAI_BASE_URL",
+        ),
     )
-    llm_model: str = "gpt-4o-mini"
+    llm_model: str = "openai/gpt-oss-120b"
     temperature: float = 0.3
-    max_tokens: int = 1500
+    # Sized so five 1–2 sentence explanations fit after gpt-oss reasoning tokens.
+    max_tokens: int = 2048
     llm_timeout_seconds: float = 30.0
+    # gpt-oss hidden reasoning. "low" keeps the JSON reply from being truncated.
+    reasoning_effort: str = "low"
 
     # --- Recommendation pipeline ---
     candidate_count: int = 20
@@ -73,7 +86,7 @@ class Settings(BaseSettings):
     @property
     def llm_enabled(self) -> bool:
         """False puts the pipeline in deterministic mode instead of raising."""
-        return bool(self.openai_api_key)
+        return bool(self.openai_api_key and self.openai_api_key.strip())
 
 
 settings = Settings()

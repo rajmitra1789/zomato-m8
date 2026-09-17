@@ -178,21 +178,24 @@ This phase is deliberately test-first. The functions are small, pure, and the ex
 
 **Goal:** LLM-generated ranking and explanations, with structural guarantees that it cannot fabricate facts.
 
+**Provider:** Groq, reached through its OpenAI-compatible Chat Completions API (`https://api.groq.com/openai/v1`). The default model is **`openai/gpt-oss-120b`**. The pipeline depends only on the `LLMClient` protocol, so a different OpenAI-compatible host remains a config change, not a rewrite.
+
 **Deliverables:** `src/zomato_reco/llm/{base,openai_client,prompts,parser}.py`, `tests/test_parser.py`, LLM path in `pipeline.py`.
 
 **Tasks:**
 
-- [ ] `base.py`: the `LLMClient` protocol (`complete_json`).
-- [ ] `openai_client.py`: concrete implementation with JSON response mode, configured temperature, bounded `max_tokens`, a request timeout, and one retry with backoff.
-- [ ] `prompts.py`: the system prompt with the non-negotiable rules (recommend only from candidates, reference by exact `id`, never invent or alter facts, 1–2 sentences per explanation tied to stated preferences, name the tradeoff on imperfect fits, JSON only), and the user-message builder serializing preferences plus compact candidate JSON.
-- [ ] Keep candidate serialization lean — no URLs, addresses, or raw review dumps. Verify the assembled prompt is in the expected 2,000–2,500 token range.
-- [ ] `parser.py`: the six-step validation gate from architecture §8.3, in order — parse, schema-validate, **allowlist-check every returned `id`**, dedupe and renumber ranks, backfill from deterministic order if short, and **discard every factual field the model returned**, re-joining name/cuisine/rating/cost from the dataset by ID.
-- [ ] Wire the failure-mode matrix from §8.4: missing key, timeout, 429, malformed JSON, hallucinated IDs, empty candidates. Every path must fall back to Phase 4's deterministic output rather than erroring.
-- [ ] Tests with a stub client: hallucinated IDs dropped, duplicate IDs collapsed, malformed JSON handled, short responses backfilled, and a fabricated rating in the model's JSON **not** reaching the output.
+- [x] Point config at Groq: default `llm_model=openai/gpt-oss-120b`, default `openai_base_url=https://api.groq.com/openai/v1`, accept `GROQ_API_KEY` (still aliased to `OPENAI_API_KEY` / `ZOMATO_OPENAI_API_KEY`). Update `.env.example`. Never log the key.
+- [x] `base.py`: the `LLMClient` protocol (`complete_json`).
+- [x] `openai_client.py`: OpenAI SDK pointed at Groq. JSON response mode, configured temperature, bounded `max_tokens`, a request timeout, SDK retries disabled so we own the failure matrix, and one retry with backoff. Honor `Retry-After` on 429 once. For gpt-oss, send `reasoning_effort=low` so hidden reasoning tokens do not eat the JSON budget and truncate the reply (edge-case.md **5.16**).
+- [x] `prompts.py`: the system prompt with the non-negotiable rules (recommend only from candidates, reference by exact `id`, never invent or alter facts, 1–2 sentences per explanation tied to stated preferences, name the tradeoff on imperfect fits, JSON only), and the user-message builder serializing preferences plus compact candidate JSON. Delimit free-text extras as untrusted so a "ignore your instructions" extras box cannot override the system prompt (**5.11**). Pass any relaxations in so the model does not claim a perfect fit on a widened search (**5.21**).
+- [x] Keep candidate serialization lean — no URLs, addresses, or raw review dumps. Verify the assembled prompt is in the expected 2,000–2,500 token range.
+- [x] `parser.py`: the six-step validation gate from architecture §8.3, in order — parse (strip markdown fences first, **5.18**), schema-validate, **allowlist-check every returned `id`**, dedupe and renumber ranks, backfill from deterministic order if short, and **discard every factual field the model returned**, re-joining name/cuisine/rating/cost from the dataset by ID.
+- [x] Wire the failure-mode matrix from §8.4: missing key, timeout, 429, malformed JSON, hallucinated IDs, empty candidates. Skip the LLM when there are 0 or 1 candidates (**5.9**, **5.10**). Every path must fall back to Phase 4's deterministic output rather than erroring.
+- [x] Tests with a stub client: hallucinated IDs dropped, duplicate IDs collapsed, malformed JSON handled, short responses backfilled, and a fabricated rating in the model's JSON **not** reaching the output.
 
-**Exit criterion:** with a real API key, recommendations come back with explanations that reference actual preferences. With the key removed, the identical call still returns 5 results via templates. The test suite passes without any API key present.
+**Exit criterion:** with a real `GROQ_API_KEY`, recommendations come back with explanations that reference actual preferences. With the key removed, the identical call still returns 5 results via templates. The test suite passes without any API key present.
 
-**Note on cost:** each request is a few thousand tokens. Development iteration is cents, not dollars, but add the response cache in Phase 7 before any repeated demoing.
+**Note on cost:** Groq's gpt-oss-120b is cheap enough that development iteration is cents. Still add the response cache in Phase 7 before any repeated demoing.
 
 *Rough effort: 2 sessions.*
 
@@ -272,7 +275,7 @@ If time is short, Phases 0 through 6 deliver everything the problem statement as
 | 2 | `restaurants.parquet` + facets | 12,453 rows; ₹300/₹500; C=3.625 | ☑ |
 | 3 | Repository + hard filters | Real query non-empty, absurd query empty | ☑ |
 | 4 | Scoring + relaxation | **Milestone A:** sensible results, no LLM | ☑ |
-| 5 | LLM engine + validation gate | Explanations work; fallback works keyless | ☐ |
+| 5 | LLM engine + validation gate | Explanations work; fallback works keyless | ☑ |
 | 6 | Streamlit UI | **Milestone B:** full search in browser | ☐ |
 | 7 | Caching, logging, e2e test | `pytest` green without a key | ☐ |
 | 8 | Extensions | As scoped | ☐ |
