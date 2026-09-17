@@ -1,0 +1,21 @@
+# Data artifacts — the raw dataset is ~150 MB and must never enter git history.
+# Leading slash anchors this to the repo root so it does not swallow the
+# src/zomato_reco/data/ source package.
+/data/
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Environments
+.venv/
+venv/
+
+# macOS
+.DS_Store
