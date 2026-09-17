@@ -158,15 +158,15 @@ This phase is deliberately test-first. The functions are small, pure, and the ex
 
 **Tasks:**
 
-- [ ] Implement soft-preference boosts: keyword-match the free-text extras against `rest_types`, `meal_contexts`, `dish_liked`, and the convenience booleans, adding configured weights to `weighted_rating`.
-- [ ] Implement progressive relaxation in the fixed order from architecture §7.2: meal context, then cuisine, then rating (−0.3), then location, with **budget relaxed last**. Return the applied relaxations as structured data, not log lines — the UI has to show them.
-- [ ] **Do not relax location by widening to `city_areas`** — it is a listing area, not a parent region, and doing so returns 60–73% of the whole dataset. Use an adjacency map or drop the constraint with a notice. See `edge-case.md` **C2**.
-- [ ] Add a deterministic tie-break (votes, then `id`). 147 restaurants share the exact same rating and cost, so without one the ranking order is unstable across runs.
-- [ ] Cap outlets per brand in the visible results: Cafe Coffee Day alone has 54 outlets, and 328 brand/neighborhood pairs have multiple.
-- [ ] Implement `select_candidates`: filter → relax if under the floor → score → return the top 20.
-- [ ] Implement the deterministic fallback explanation templates over real fields ("4.4 rating from 1,200 votes, ₹600 for two, serves North Indian"). Phase 5 depends on these existing already.
-- [ ] Assemble the deterministic `pipeline.recommend()` returning the top 5 with template explanations.
-- [ ] Tests: a 4.9-rated restaurant with 4 votes must not outrank a 4.5 with 3,000; relaxation must trigger below the floor and record what it changed.
+- [x] Implement soft-preference boosts: keyword-match the free-text extras against `rest_types`, `meal_contexts`, `dish_liked`, and the convenience booleans, adding configured weights to `weighted_rating`.
+- [x] Implement progressive relaxation in the fixed order from architecture §7.2: meal context, then cuisine, then rating (−0.3), then location, with **budget relaxed last**. Return the applied relaxations as structured data, not log lines — the UI has to show them.
+- [x] **Do not relax location by widening to `city_areas`** — it is a listing area, not a parent region, and doing so returns 60–73% of the whole dataset. Use an adjacency map or drop the constraint with a notice. See `edge-case.md` **C2**.
+- [x] Add a deterministic tie-break (votes, then `id`). 147 restaurants share the exact same rating and cost, so without one the ranking order is unstable across runs.
+- [x] Cap outlets per brand in the visible results: Cafe Coffee Day alone has 54 outlets, and 328 brand/neighborhood pairs have multiple.
+- [x] Implement `select_candidates`: filter → relax if under the floor → score → return the top 20.
+- [x] Implement the deterministic fallback explanation templates over real fields ("4.4 rating from 1,200 votes, ₹600 for two, serves North Indian"). Phase 5 depends on these existing already.
+- [x] Assemble the deterministic `pipeline.recommend()` returning the top 5 with template explanations.
+- [x] Tests: a 4.9-rated restaurant with 4 votes must not outrank a 4.5 with 3,000; relaxation must trigger below the floor and record what it changed.
 
 **Exit criterion — MILESTONE A:** a CLI or notebook call to `pipeline.recommend()` with realistic preferences returns 5 restaurants that a human would agree are reasonable, with no API key configured anywhere. Sanity-check several neighborhoods and budget bands, since this output is the input the LLM will later rank.
 
@@ -271,7 +271,7 @@ If time is short, Phases 0 through 6 deliver everything the problem statement as
 | 1 | Tested field parsers | `pytest tests/test_clean.py` | ☑ |
 | 2 | `restaurants.parquet` + facets | 12,453 rows; ₹300/₹500; C=3.625 | ☑ |
 | 3 | Repository + hard filters | Real query non-empty, absurd query empty | ☑ |
-| 4 | Scoring + relaxation | **Milestone A:** sensible results, no LLM | ☐ |
+| 4 | Scoring + relaxation | **Milestone A:** sensible results, no LLM | ☑ |
 | 5 | LLM engine + validation gate | Explanations work; fallback works keyless | ☐ |
 | 6 | Streamlit UI | **Milestone B:** full search in browser | ☐ |
 | 7 | Caching, logging, e2e test | `pytest` green without a key | ☐ |

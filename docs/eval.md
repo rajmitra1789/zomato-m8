@@ -188,7 +188,7 @@ Fixed, version-controlled, and grounded in real dataset values so expectations a
 | G1 | Whitefield, medium, North Indian, ≥3.5 | 886 in Whitefield; 5,017 North Indian | Happy path: 5 results, all constraints satisfied |
 | G2 | BTM, low, any, ≥3.0 | 725 in BTM; 5,124 low-band | Large candidate pool, no relaxation |
 | G3 | Koramangala 5th Block, high, Italian, ≥4.0 | 266 in area; Italian in 66/93 locations | Multi-constraint, likely feasible |
-| G4 | Jakkur, any, any, no minimum | **1 restaurant total** | Returns 1, explanatory notice, no crash |
+| G4 | Jakkur, any, any, no minimum | **1 restaurant total** | The Jakkur restaurant ranks 1st, relaxation fills the rest with a notice, no crash |
 | G5 | Kengeri, medium, Chinese, ≥4.0 | 1 restaurant, unlikely to match | Relaxation chain terminates, partial results |
 | G6 | HSR, low, Vegan, ≥3.0 | **Vegan has 1 restaurant citywide** | Rare-cuisine relaxation |
 | G7 | Indiranagar, any, any, **≥4.8** | Only 25 qualify citywide | Rating relaxed, notice shown |

@@ -253,6 +253,10 @@ Applied in `filters.py`, cheapest and most selective first, against the in-memor
 
 **Location cannot be relaxed via `city_areas`.** `listed_in(city)` is a Zomato *search listing area*, not a geographic parent of `location` — a single restaurant is listed in up to 14 of them (mean 2.69). Measured consequence: "widening" Whitefield from its 886 restaurants to the union of its listing areas yields 7,510, or 60% of the entire dataset, including places across the city. Location relaxation must therefore either use an explicit neighborhood adjacency map or drop the constraint outright with a clear notice. See `edge-case.md` **C2**.
 
+**Implemented (Phase 4): adjacency is name-derived only.** Of the 93 neighborhoods, exactly one forms an objective family by name — the nine `Koramangala Nth Block` values, which are adjacent by construction. Hand-drawing a geographic adjacency map for the other 84 would require local knowledge this pipeline does not have, and a wrong guess silently recommends restaurants across the city, which is the same failure mode as the `city_areas` trap. So location relaxes to a name-derived family when one exists and is otherwise dropped with a notice. A curated adjacency map remains a clean future improvement.
+
+**Strict matches rank above relaxed ones.** Relaxation widens the pool but must not displace what the user actually asked for. Rows matching the original constraints are ranked first, then the relaxed remainder fills the list. Without this, the single restaurant in Jakkur was pushed off a five-result list by higher-rated places elsewhere — technically explained by the notice, but functionally ignoring the request.
+
 ### 7.2 Vote-weighted rating
 
 A naive `rating` sort promotes a 4.9-rated place with 4 votes over a 4.5 with 3,000. The pipeline uses an IMDb-style Bayesian shrinkage toward the global mean:
