@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bangalore Restaurant Recommender</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #12100E;
+      color: #FAF7F5;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom accent & input styling */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 9999px;
+      background: #EA580C;
+      cursor: pointer;
+      border: 2px solid #FAF7F5;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+    input[type="range"]::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 9999px;
+      background: #EA580C;
+      cursor: pointer;
+      border: 2px solid #FAF7F5;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-[#FAF7F5] antialiased selection:bg-[#EA580C]/30 selection:text-[#FAF7F5]">
+  <div class="flex min-h-screen w-full">
+    
+    <!-- Fixed Left Sidebar (approx 320px) -->
+    <aside class="w-[320px] flex-shrink-0 bg-[#1A1714] border-r border-[#3A342E] min-h-screen p-6 flex flex-col justify-between sticky top-0 h-screen overflow-y-auto">
+      <div>
+        <div class="flex items-center justify-between pb-5 border-b border-[#3A342E]/70 mb-6">
+          <h2 class="text-lg font-semibold tracking-tight text-[#FAF7F5]">Preferences</h2>
+          <span class="text-xs text-[#A8A29E] font-medium px-2 py-0.5 rounded bg-[#2C2825] border border-[#3A342E]/50">Filters Active</span>
+        </div>
+
+        <form class="space-y-5" onsubmit="event.preventDefault();">
+          <!-- Neighborhood -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#A8A29E] mb-1.5">Neighborhood</label>
+            <div class="relative">
+              <select class="w-full bg-[#12100E] border border-[#3A342E] rounded-lg px-3 py-2 text-sm text-[#FAF7F5] focus:outline-none focus:border-[#EA580C] appearance-none cursor-pointer pr-9 font-medium">
+                <option selected>Koramangala 5th Block</option>
+                <option>Indiranagar</option>
+                <option>Whitefield</option>
+                <option>HSR Layout</option>
+                <option>Jayanagar</option>
+                <option>Church Street / MG Road</option>
+                <option>Lavelle Road</option>
+                <option>JP Nagar</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-[#A8A29E]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+            <p class="text-xs text-[#A8A29E]/80 mt-1">93 Bangalore neighborhoods.</p>
+          </div>
+
+          <!-- Budget -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#A8A29E] mb-2">Budget</label>
+            <div class="space-y-2">
+              <label class="flex items-center space-x-2.5 cursor-pointer text-xs text-[#A8A29E] hover:text-[#FAF7F5] transition-colors">
+                <input type="radio" name="budget" class="accent-[#EA580C] w-4 h-4 bg-[#12100E] border-[#3A342E] cursor-pointer">
+                <span>Any budget</span>
+              </label>
+              <label class="flex items-center space-x-2.5 cursor-pointer text-xs text-[#A8A29E] hover:text-[#FAF7F5] transition-colors">
+                <input type="radio" name="budget" class="accent-[#EA580C] w-4 h-4 bg-[#12100E] border-[#3A342E] cursor-pointer">
+                <span>Low — under ₹600 for two</span>
+              </label>
+              <label class="flex items-center space-x-2.5 cursor-pointer text-xs text-[#FAF7F5] font-medium p-1.5 -ml-1.5 rounded-md bg-[#231F1C] border border-[#3A342E]/60">
+                <input type="radio" name="budget" checked class="accent-[#EA580C] w-4 h-4 cursor-pointer">
+                <span class="text-[#FAF7F5]">Medium — ₹600–1,200 for two</span>
+              </label>
+              <label class="flex items-center space-x-2.5 cursor-pointer text-xs text-[#A8A29E] hover:text-[#FAF7F5] transition-colors">
+                <input type="radio" name="budget" class="accent-[#EA580C] w-4 h-4 bg-[#12100E] border-[#3A342E] cursor-pointer">
+                <span>High — over ₹1,200 for two</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Cuisines -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#A8A29E] mb-1.5">Cuisines</label>
+            <div class="flex flex-wrap gap-1.5 p-2 bg-[#12100E] border border-[#3A342E] rounded-lg min-h-[42px] items-center">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">
+                North Indian
+                <button type="button" class="hover:text-white text-[#FDBA74] leading-none">&times;</button>
+              </span>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">
+                Chinese
+                <button type="button" class="hover:text-white text-[#FDBA74] leading-none">&times;</button>
+              </span>
+              <span class="text-xs text-[#A8A29E]/60 px-1 italic">+ Add cuisine...</span>
+            </div>
+          </div>
+
+          <!-- Minimum Rating -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-xs font-semibold uppercase tracking-wider text-[#A8A29E]">Minimum Rating</label>
+              <span class="text-xs font-medium text-[#FBBF24]">4.0 and above</span>
+            </div>
+            <input type="range" min="0" max="4.5" step="0.1" value="4.0" class="w-full h-1.5 bg-[#2C2825] rounded-lg appearance-none cursor-pointer accent-[#EA580C]">
+            <div class="flex justify-between text-[10px] text-[#A8A29E]/60 mt-1">
+              <span>Any (0.0)</span>
+              <span>3.0</span>
+              <span>4.0</span>
+              <span>4.5</span>
+            </div>
+          </div>
+
+          <!-- Occasion -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#A8A29E] mb-1.5">Occasion</label>
+            <div class="relative">
+              <select class="w-full bg-[#12100E] border border-[#3A342E] rounded-lg px-3 py-2 text-sm text-[#FAF7F5] focus:outline-none focus:border-[#EA580C] appearance-none cursor-pointer pr-9 font-medium">
+                <option selected>Dine-out</option>
+                <option>Any occasion</option>
+                <option>Buffet</option>
+                <option>Cafes</option>
+                <option>Delivery</option>
+                <option>Desserts</option>
+                <option>Drinks & nightlife</option>
+                <option>Pubs and bars</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-[#A8A29E]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- How many results -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#A8A29E] mb-1.5">How many results</label>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-[#12100E] border border-[#3A342E] rounded-lg">
+              <button type="button" class="text-xs py-1.5 rounded font-medium text-[#A8A29E] hover:text-[#FAF7F5] text-center">3</button>
+              <button type="button" class="text-xs py-1.5 rounded font-semibold bg-[#EA580C] text-white shadow-sm text-center">5</button>
+              <button type="button" class="text-xs py-1.5 rounded font-medium text-[#A8A29E] hover:text-[#FAF7F5] text-center">7</button>
+              <button type="button" class="text-xs py-1.5 rounded font-medium text-[#A8A29E] hover:text-[#FAF7F5] text-center">10</button>
+            </div>
+          </div>
+
+          <!-- Anything else? -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#A8A29E] mb-1.5">Anything else?</label>
+            <textarea rows="3" class="w-full bg-[#12100E] border border-[#3A342E] rounded-lg p-2.5 text-xs text-[#FAF7F5] focus:outline-none focus:border-[#EA580C] resize-none leading-relaxed placeholder-[#A8A29E]/50">good for a date, not too loud</textarea>
+          </div>
+
+          <!-- Full-width primary button -->
+          <button type="button" class="w-full py-2.5 px-4 rounded-lg bg-[#C2410C] hover:bg-[#EA580C] text-[#FAF7F5] text-sm font-semibold tracking-wide shadow-md transition-colors flex items-center justify-center gap-2">
+            Find restaurants
+          </button>
+        </form>
+      </div>
+
+      <div class="pt-6 border-t border-[#3A342E]/50 text-[11px] text-[#A8A29E]/70 flex items-center justify-between">
+        <span>Catalog: Bangalore 2019</span>
+        <span>12,453 entries</span>
+      </div>
+    </aside>
+
+    <!-- Main Content Column (max width approx 760px, left-aligned, generous right whitespace) -->
+    <main class="flex-1 px-12 py-10 overflow-y-auto">
+      <div class="max-w-[760px]">
+        
+        <!-- Page Header -->
+        <header class="mb-8">
+          <div class="text-xs font-bold tracking-widest text-[#EA580C] uppercase mb-1.5">
+            BANGALORE · ZOMATO SNAPSHOT
+          </div>
+          <h1 class="text-[40px] leading-[1.1] font-[650] tracking-tight text-[#FAF7F5] mb-2.5">
+            Find a place to eat
+          </h1>
+          <p class="text-sm text-[#A8A29E] leading-relaxed max-w-[720px]">
+            Neighborhoods, not cities — this catalog is Bangalore only, from a 2019 Zomato scrape. 12,453 restaurants. Many listings have since closed; treat links as historical.
+          </p>
+        </header>
+
+        <!-- Short Summary Line -->
+        <div class="mb-6 pb-4 border-b border-[#3A342E]/60 text-sm text-[#FAF7F5] font-normal leading-relaxed">
+          Five Koramangala places that fit a quieter date night — North Indian and Chinese, around ₹600–1,200 for two, rated 4.0 or higher.
+        </div>
+
+        <!-- Five Stacked Restaurant Cards (16px padding, 12px gap) -->
+        <div class="space-y-3">
+          
+          <!-- Card 1: Empire Restaurant (with expanded "Why this rank") -->
+          <div class="bg-[#231F1C] border border-[#3A342E] rounded-[16px] p-4 transition-all">
+            <div class="flex items-start gap-3.5">
+              <!-- Circular rank badge in accent, white number -->
+              <div class="w-7 h-7 rounded-full bg-[#EA580C] text-white flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5 shadow-sm">
+                1
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <!-- Name & Meta -->
+                <div class="flex items-baseline justify-between gap-2">
+                  <h3 class="text-[18px] font-bold text-[#FAF7F5] truncate leading-snug">Empire Restaurant</h3>
+                  <a href="#" class="text-xs font-semibold text-[#EA580C] hover:underline flex-shrink-0">View on Zomato</a>
+                </div>
+                
+                <div class="text-[14px] text-[#A8A29E] mt-0.5 flex flex-wrap items-center gap-1.5">
+                  <span class="text-[#FBBF24] font-semibold">4.3/5</span>
+                  <span>·</span>
+                  <span>4,102 votes</span>
+                  <span>·</span>
+                  <span>₹800 for two</span>
+                  <span>·</span>
+                  <span>Koramangala 5th Block</span>
+                </div>
+
+                <!-- Pills and Badges -->
+                <div class="flex flex-wrap items-center gap-1.5 mt-2.5">
+                  <!-- Cuisines -->
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">North Indian</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Chinese</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Biryani</span>
+                  
+                  <span class="h-3 w-[1px] bg-[#3A342E] mx-1"></span>
+
+                  <!-- Neutral Badges -->
+                  <span class="px-2 py-0.5 rounded text-xs font-normal bg-[#2C2825] text-[#D6D3D1]">Online ordering</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-normal bg-[#2C2825] text-[#D6D3D1]">Quick service</span>
+                </div>
+
+                <!-- Explanation -->
+                <p class="text-sm text-[#FAF7F5] mt-3 leading-relaxed">
+                  “A reliable date-night pick: strong ratings, the cuisines you asked for, and a cost that sits in your medium band without feeling formal.”
+                </p>
+
+                <!-- Address -->
+                <p class="text-xs text-[#A8A29E] mt-2">
+                  47/1, 5th Block, Koramangala, Bangalore.
+                </p>
+
+                <!-- "Why this rank" Open Row (Card 1 only) -->
+                <div class="mt-3.5 pt-3 border-t border-[#3A342E]/70">
+                  <div class="flex items-center gap-1.5 text-xs font-medium text-[#FAF7F5] mb-2 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-[#EA580C] rotate-180 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <span>Why this rank</span>
+                  </div>
+                  <div class="bg-[#1A1714] border border-[#3A342E]/80 rounded-lg p-3 text-xs text-[#A8A29E] space-y-2">
+                    <p class="text-[#FAF7F5]">The AI chose the order. These numbers are the deterministic score underneath.</p>
+                    <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#D6D3D1]">
+                      <div><span class="text-[#A8A29E]">Vote-weighted rating:</span> <span class="font-medium text-[#FAF7F5]">4.32</span></div>
+                      <div><span class="text-[#A8A29E]">Preference boost:</span> <span class="font-medium text-[#EA580C]">+0.40</span></div>
+                      <div><span class="text-[#A8A29E]">Combined score:</span> <span class="font-bold text-[#FBBF24]">4.72</span></div>
+                      <div><span class="text-[#A8A29E]">Votes:</span> <span class="font-medium text-[#FAF7F5]">2,841</span></div>
+                      <div><span class="text-[#A8A29E]">Matched original filters:</span> <span class="font-medium text-emerald-400">yes</span></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Onesta -->
+          <div class="bg-[#231F1C] border border-[#3A342E] rounded-[16px] p-4 transition-all">
+            <div class="flex items-start gap-3.5">
+              <div class="w-7 h-7 rounded-full bg-[#EA580C] text-white flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5 shadow-sm">
+                2
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-baseline justify-between gap-2">
+                  <h3 class="text-[18px] font-bold text-[#FAF7F5] truncate leading-snug">Onesta</h3>
+                  <a href="#" class="text-xs font-semibold text-[#EA580C] hover:underline flex-shrink-0">View on Zomato</a>
+                </div>
+                
+                <div class="text-[14px] text-[#A8A29E] mt-0.5 flex flex-wrap items-center gap-1.5">
+                  <span class="text-[#FBBF24] font-semibold">4.2/5</span>
+                  <span>·</span>
+                  <span>1,986 votes</span>
+                  <span>·</span>
+                  <span>₹600 for two</span>
+                  <span>·</span>
+                  <span>Koramangala 5th Block</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5 mt-2.5">
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Pizza</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Italian</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Cafe</span>
+                  
+                  <span class="h-3 w-[1px] bg-[#3A342E] mx-1"></span>
+
+                  <span class="px-2 py-0.5 rounded text-xs font-normal bg-[#2C2825] text-[#D6D3D1]">Online ordering</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-normal bg-[#2C2825] text-[#D6D3D1]">Table booking</span>
+                </div>
+
+                <p class="text-sm text-[#FAF7F5] mt-3 leading-relaxed">
+                  “Slightly off the cuisine brief, but the rating and budget match, and it reads as a quieter sit-down than a typical delivery spot.”
+                </p>
+
+                <p class="text-xs text-[#A8A29E] mt-2">
+                  562, 8th Main, 5th Block, Koramangala, Bangalore.
+                </p>
+
+                <!-- Collapsed "Why this rank" -->
+                <div class="mt-3 pt-2.5 border-t border-[#3A342E]/50">
+                  <div class="flex items-center gap-1.5 text-xs text-[#A8A29E] hover:text-[#FAF7F5] cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-[#A8A29E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <span>Why this rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Beijing Bites -->
+          <div class="bg-[#231F1C] border border-[#3A342E] rounded-[16px] p-4 transition-all">
+            <div class="flex items-start gap-3.5">
+              <div class="w-7 h-7 rounded-full bg-[#EA580C] text-white flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5 shadow-sm">
+                3
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-baseline justify-between gap-2">
+                  <h3 class="text-[18px] font-bold text-[#FAF7F5] truncate leading-snug">Beijing Bites</h3>
+                  <a href="#" class="text-xs font-semibold text-[#EA580C] hover:underline flex-shrink-0">View on Zomato</a>
+                </div>
+                
+                <div class="text-[14px] text-[#A8A29E] mt-0.5 flex flex-wrap items-center gap-1.5">
+                  <span class="text-[#FBBF24] font-semibold">4.1/5</span>
+                  <span>·</span>
+                  <span>920 votes</span>
+                  <span>·</span>
+                  <span>₹700 for two</span>
+                  <span>·</span>
+                  <span>Koramangala 5th Block</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5 mt-2.5">
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Chinese</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Thai</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Momos</span>
+                  
+                  <span class="h-3 w-[1px] bg-[#3A342E] mx-1"></span>
+
+                  <span class="px-2 py-0.5 rounded text-xs font-normal bg-[#2C2825] text-[#D6D3D1]">Online ordering</span>
+                </div>
+
+                <p class="text-sm text-[#FAF7F5] mt-3 leading-relaxed">
+                  “Direct cuisine match with a vote count high enough to trust the 4.1.”
+                </p>
+
+                <p class="text-xs text-[#A8A29E] mt-2">
+                  104, 5th Block, KHB Colony, Koramangala, Bangalore.
+                </p>
+
+                <!-- Collapsed "Why this rank" -->
+                <div class="mt-3 pt-2.5 border-t border-[#3A342E]/50">
+                  <div class="flex items-center gap-1.5 text-xs text-[#A8A29E] hover:text-[#FAF7F5] cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-[#A8A29E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <span>Why this rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Meghana Foods -->
+          <div class="bg-[#231F1C] border border-[#3A342E] rounded-[16px] p-4 transition-all">
+            <div class="flex items-start gap-3.5">
+              <div class="w-7 h-7 rounded-full bg-[#EA580C] text-white flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5 shadow-sm">
+                4
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-baseline justify-between gap-2">
+                  <h3 class="text-[18px] font-bold text-[#FAF7F5] truncate leading-snug">Meghana Foods</h3>
+                  <a href="#" class="text-xs font-semibold text-[#EA580C] hover:underline flex-shrink-0">View on Zomato</a>
+                </div>
+                
+                <div class="text-[14px] text-[#A8A29E] mt-0.5 flex flex-wrap items-center gap-1.5">
+                  <span class="text-[#FBBF24] font-semibold">4.4/5</span>
+                  <span>·</span>
+                  <span>8,412 votes</span>
+                  <span>·</span>
+                  <span>₹650 for two</span>
+                  <span>·</span>
+                  <span>Koramangala 5th Block</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5 mt-2.5">
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Biryani</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Andhra</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">North Indian</span>
+                  
+                  <span class="h-3 w-[1px] bg-[#3A342E] mx-1"></span>
+
+                  <span class="px-2 py-0.5 rounded text-xs font-normal bg-[#2C2825] text-[#D6D3D1]">Online ordering</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-normal bg-[#2C2825] text-[#D6D3D1]">Quick service</span>
+                </div>
+
+                <p class="text-sm text-[#FAF7F5] mt-3 leading-relaxed">
+                  “Highest confidence in this shortlist. More of a busy meal than a hushed date, which is why it sits below the quieter options.”
+                </p>
+
+                <p class="text-xs text-[#A8A29E] mt-2">
+                  124, 1st Cross Road, 5th Block, Koramangala, Bangalore.
+                </p>
+
+                <!-- Collapsed "Why this rank" -->
+                <div class="mt-3 pt-2.5 border-t border-[#3A342E]/50">
+                  <div class="flex items-center gap-1.5 text-xs text-[#A8A29E] hover:text-[#FAF7F5] cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-[#A8A29E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <span>Why this rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Truffles -->
+          <div class="bg-[#231F1C] border border-[#3A342E] rounded-[16px] p-4 transition-all">
+            <div class="flex items-start gap-3.5">
+              <div class="w-7 h-7 rounded-full bg-[#EA580C] text-white flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5 shadow-sm">
+                5
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-baseline justify-between gap-2">
+                  <h3 class="text-[18px] font-bold text-[#FAF7F5] truncate leading-snug">Truffles</h3>
+                  <a href="#" class="text-xs font-semibold text-[#EA580C] hover:underline flex-shrink-0">View on Zomato</a>
+                </div>
+                
+                <div class="text-[14px] text-[#A8A29E] mt-0.5 flex flex-wrap items-center gap-1.5">
+                  <span class="text-[#FBBF24] font-semibold">4.4/5</span>
+                  <span>·</span>
+                  <span>6,330 votes</span>
+                  <span>·</span>
+                  <span>₹900 for two</span>
+                  <span>·</span>
+                  <span>Koramangala 5th Block</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5 mt-2.5">
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">American</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Burger</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-[#3A2418] text-[#FDBA74] border border-[#9A3412]">Cafe</span>
+                  
+                  <span class="h-3 w-[1px] bg-[#3A342E] mx-1"></span>
+
+                  <span class="px-2 py-0.5 rounded text-xs font-normal bg-[#2C2825] text-[#D6D3D1]">Table booking</span>
+                </div>
+
+                <p class="text-sm text-[#FAF7F5] mt-3 leading-relaxed">
+                  “Excellent rating, but the cuisine is a stretch — included because it still clears budget and rating.”
+                </p>
+
+                <p class="text-xs text-[#A8A29E] mt-2">
+                  93/1, 4th B Cross, 5th Block, Koramangala, Bangalore.
+                </p>
+
+                <!-- Collapsed "Why this rank" -->
+                <div class="mt-3 pt-2.5 border-t border-[#3A342E]/50">
+                  <div class="flex items-center gap-1.5 text-xs text-[#A8A29E] hover:text-[#FAF7F5] cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-[#A8A29E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <span>Why this rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-[#3A342E]/50 flex items-center justify-between text-xs text-[#A8A29E]/60 pb-12">
+          <span>End of 5 shortlisted recommendations</span>
+          <span>Historical snapshot (2019)</span>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

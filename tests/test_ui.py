@@ -1,11 +1,13 @@
 """Pure UI helpers: labels, formatting, and preference mapping. No Streamlit required."""
 
-from zomato_reco.models import UserPreferences
+from zomato_reco.models import Restaurant, ScoreBreakdown, UserPreferences
 from zomato_reco.ui.components import (
     ANY_BUDGET,
     ANY_NEIGHBORHOOD,
     ANY_OCCASION,
+    _why_html,
     budget_choice_label,
+    card_badges,
     cuisine_tags,
     display_name,
     format_cost,
@@ -74,3 +76,45 @@ def test_empty_form_is_a_valid_query():
 def test_slider_zero_means_no_minimum():
     assert min_rating_from_slider(0.0) is None
     assert min_rating_from_slider(4.5) == 4.5
+
+
+def test_card_badges_only_true_flags():
+    restaurant = Restaurant(id="1", name="Empire", online_order=True, is_quick_service=True)
+    assert card_badges(restaurant) == ["Online ordering", "Quick service"]
+
+
+def test_why_html_omitted_without_breakdown():
+    assert _why_html(None, llm_used=True, open_=True) == ""
+
+
+def test_why_html_open_top_card_and_llm_intro():
+    html = _why_html(
+        ScoreBreakdown(
+            weighted_rating=4.32,
+            preference_boost=0.4,
+            score=4.72,
+            votes=2841,
+            strict_match=True,
+        ),
+        llm_used=True,
+        open_=True,
+    )
+    assert 'class="reco-why" open>' in html
+    assert "The AI chose the order" in html
+    assert "4.32" in html
+    assert "+0.40" in html
+    assert "4.72" in html
+    assert "2,841" in html
+    assert "reco-yes" in html
+
+
+def test_why_html_unrated_and_widened():
+    html = _why_html(
+        ScoreBreakdown(unrated=True, votes=0, strict_match=False),
+        llm_used=False,
+        open_=False,
+    )
+    assert 'class="reco-why">' in html
+    assert "Not yet rated" in html
+    assert "widened" in html
+    assert "The AI chose" not in html

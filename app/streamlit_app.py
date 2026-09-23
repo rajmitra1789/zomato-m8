@@ -19,6 +19,8 @@ from zomato_reco.ui.components import (
     preferences_from_form,
     render_initial,
     render_results,
+    render_sidebar_footer,
+    render_sidebar_header,
 )
 
 st.set_page_config(
@@ -56,13 +58,14 @@ st.caption(
 )
 
 with st.sidebar:
-    st.header("Preferences")
+    render_sidebar_header(filters_active=bool(st.session_state.get("searched")))
     with st.form("preferences", clear_on_submit=False):
         location_choice = st.selectbox(
             "Neighborhood",
             neighborhood_options(repo),
-            help="93 Bangalore neighborhoods. No city selector: this catalog is Bangalore-only.",
+            help="No city selector: this catalog is Bangalore-only.",
         )
+        st.caption(f"{len(repo.locations)} Bangalore neighborhoods.")
         budget_choice = st.radio(
             "Budget",
             budget_options(repo),
@@ -82,16 +85,17 @@ with st.sidebar:
             help="0 means any rating. Capped at 4.5 — almost nothing in the data sits higher.",
         )
         occasion_choice = st.selectbox("Occasion", occasion_options(repo))
-        result_count = st.select_slider("How many results", options=[3, 5, 7, 10], value=5)
+        result_count = st.segmented_control(
+            "How many results", options=[3, 5, 7, 10], default=5, width="stretch"
+        )
         extras = st.text_area(
             "Anything else?",
             placeholder="family-friendly, quick, good for a date…",
             max_chars=500,
             help="Keyword matching boosts the list; the LLM uses this for explanations.",
         )
-        submitted = st.form_submit_button(
-            "Find restaurants", type="primary", use_container_width=True
-        )
+        submitted = st.form_submit_button("Find restaurants", type="primary", width="stretch")
+    render_sidebar_footer(len(repo))
 
 if submitted:
     prefs = preferences_from_form(
@@ -101,12 +105,13 @@ if submitted:
         min_rating=min_rating,
         occasion_choice=occasion_choice,
         extras=extras,
-        result_count=result_count,
+        result_count=result_count or 5,
     )
     with st.spinner("Finding restaurants…"):
         result = recommend(prefs, repo)
     st.session_state["result"] = result
     st.session_state["searched"] = True
+    st.rerun()
 
 if st.session_state.get("searched"):
     render_results(st.session_state["result"], llm_configured=settings.llm_enabled)
