@@ -5,7 +5,16 @@ from pathlib import Path
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+def _project_root() -> Path:
+    """Repo root, whether this file lives under src/ or in site-packages."""
+    for candidate in Path(__file__).resolve().parents:
+        if (candidate / "pyproject.toml").is_file():
+            return candidate
+    return Path(__file__).resolve().parents[2]
+
+
+PROJECT_ROOT = _project_root()
 
 
 class Settings(BaseSettings):
