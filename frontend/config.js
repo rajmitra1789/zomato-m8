@@ -1,4 +1,4 @@
-// API origin for the static frontend. No trailing slash.
-// Local default. Before the Vercel deploy, set this to the Railway URL
-// (https://<service>.up.railway.app). Never put a Groq key in this file.
-window.API_BASE = "https://web-production-a0c00.up.railway.app";
+window.API_BASE =
+  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:8000"
+    : "https://web-production-a0c00.up.railway.app";

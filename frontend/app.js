@@ -463,7 +463,7 @@ async function onSubmit(event) {
   if (pending) addCuisine(pending);
   const button = $("submit");
   button.disabled = true;
-  button.textContent = "Finding restaurants…";
+  button.textContent = "Finding...";
   $("results").replaceChildren(emptyPanel("Finding restaurants…", "Ranking the catalog against your filters."));
   try {
     const response = await fetch(`${API_BASE}/api/recommend`, {
