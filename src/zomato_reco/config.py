@@ -76,6 +76,13 @@ class Settings(BaseSettings):
     llm_quota_margin: float = Field(default=0.9, gt=0.0, le=1.0)
     llm_cache: bool = True
 
+    # Comma-separated browser origins allowed to call the API.
+    # A lone "*" is dropped when a Groq key is set — see app/api.py.
+    cors_origins: str = (
+        "http://localhost:5173,http://localhost:3000,"
+        "http://127.0.0.1:5173,http://127.0.0.1:3000"
+    )
+
     # --- Recommendation pipeline ---
     candidate_count: int = 20
     result_count: int = 5
@@ -114,6 +121,10 @@ class Settings(BaseSettings):
     def llm_enabled(self) -> bool:
         """False puts the pipeline in deterministic mode instead of raising."""
         return bool(self.openai_api_key and self.openai_api_key.strip())
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [part.strip() for part in self.cors_origins.split(",") if part.strip()]
 
 
 settings = Settings()

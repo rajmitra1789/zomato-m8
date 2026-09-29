@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "PYTHONPATH=src uvicorn app.api:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 65"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"

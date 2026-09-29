@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bangalore Restaurant Recommender</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <div class="sidebar-head">
+          <h2>Preferences</h2>
+          <span class="filters-badge" id="filters-badge" hidden>Filters Active</span>
+        </div>
+
+        <form id="prefs" class="prefs">
+          <div class="field">
+            <label for="location">Neighborhood</label>
+            <div class="select-wrap">
+              <select id="location" name="location">
+                <option value="">Loading neighborhoods…</option>
+              </select>
+            </div>
+            <p class="hint" id="location-hint">Bangalore neighborhoods.</p>
+          </div>
+
+          <fieldset class="field">
+            <legend>Budget</legend>
+            <div id="budget-options" class="budget-list"></div>
+          </fieldset>
+
+          <div class="field">
+            <label for="cuisine-input">Cuisines</label>
+            <div class="cuisine-box" id="cuisine-box">
+              <div id="cuisine-chips" class="cuisine-chips"></div>
+              <input id="cuisine-input" type="text" placeholder="+ Add cuisine…" autocomplete="off" aria-autocomplete="list" aria-controls="cuisine-suggest">
+              <ul id="cuisine-suggest" class="suggest" hidden></ul>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="min-rating">Minimum rating</label>
+              <span id="rating-readout" class="rating-readout">Any</span>
+            </div>
+            <input id="min-rating" type="range" min="0" max="4.5" step="0.1" value="0">
+            <div class="scale">
+              <span>Any (0.0)</span>
+              <span>3.0</span>
+              <span>4.0</span>
+              <span>4.5</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="occasion">Occasion</label>
+            <div class="select-wrap">
+              <select id="occasion" name="occasion">
+                <option value="">Any occasion</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="label" id="count-label">How many results</span>
+            <div class="segment" role="group" aria-labelledby="count-label" id="result-count"></div>
+          </div>
+
+          <div class="field">
+            <label for="extras">Anything else?</label>
+            <textarea id="extras" rows="3" maxlength="500" placeholder="family-friendly, quick, good for a date…"></textarea>
+          </div>
+
+          <button type="submit" class="submit" id="submit">Find restaurants</button>
+        </form>
+      </div>
+
+      <div class="sidebar-foot">
+        <span>Catalog: Bangalore 2019</span>
+        <span id="catalog-count">— entries</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="panel">
+        <header class="page-head">
+          <p class="kicker">Bangalore · Zomato snapshot</p>
+          <h1>Find a place to eat</h1>
+          <p class="lede" id="lede">
+            Neighborhoods, not cities — this catalog is Bangalore only, from a 2019 Zomato scrape.
+            Many listings have since closed; treat links as historical.
+          </p>
+        </header>
+
+        <div id="banner" class="banner" role="status" hidden></div>
+        <div id="relaxations" class="notices" hidden></div>
+        <p id="summary" class="summary" hidden></p>
+        <div id="results"></div>
+        <div id="foot" class="foot" hidden>
+          <span id="foot-count"></span>
+          <span>Historical snapshot (2019)</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

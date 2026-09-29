@@ -1,10 +1,11 @@
-# Data artifacts — the raw dataset is ~150 MB and must never enter git history.
+# Raw Hugging Face download (~150 MB). Never commit.
+# The cleaned artifact in data/processed/ is tracked — Railway loads it at boot.
 # Leading slash anchors this to the repo root so it does not swallow the
 # src/zomato_reco/data/ source package.
-/data/
+/data/raw/
 
 # Quota counters and any on-disk LLM cache. Regenerated at runtime; never commit.
-data/runtime/
+/data/runtime/
 
 # Secrets
 .env
