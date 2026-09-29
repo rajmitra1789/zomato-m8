@@ -1,0 +1,12 @@
+# Railway/Nixpacks reads this instead of `pip install .` from pyproject.toml.
+# The Nixpacks setuptools path copies only pyproject.toml into the install
+# layer, so setuptools fails with: egg_base option 'src' does not exist.
+# Runtime still imports via PYTHONPATH=src (Procfile / railway.toml).
+# streamlit and datasets stay in pyproject.toml for local UI and ingestion.
+pandas>=2.0
+pyarrow>=14.0
+pydantic>=2.0
+pydantic-settings>=2.0
+openai>=1.0
+fastapi>=0.115
+uvicorn[standard]>=0.32
